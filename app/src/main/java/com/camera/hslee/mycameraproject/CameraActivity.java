@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -29,20 +30,29 @@ import java.io.OutputStream;
 public class CameraActivity extends AppCompatActivity {
     private Camera mCamera;
     private CameraPreview mPreview;
+    private Button picBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_camera);
 
 
 
-        findViewById(R.id.captureBtn).setOnClickListener(new View.OnClickListener() {
+        picBtn = (Button)findViewById(R.id.captureBtn);
+        picBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mCamera.takePicture(null, null, mPicture);
+            }
+        });
+        findViewById(R.id.albBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(),AlbumActivity.class);
+                startActivity(i);
             }
         });
     }
@@ -53,13 +63,27 @@ public class CameraActivity extends AppCompatActivity {
         startCamera();
     }
     // 오토포커스 프레임레이아웃에 클릭 달고 클릭 하면 촬영버튼 비활성화
-    //
+    // 포커스 주변에 사각형 그리기?
     // 포커스 성공하면 촬영버튼 활성화 실패하면 그대로
     private void startCamera(){
-            mCamera = getCameraInstance();
-            mPreview = new CameraPreview(getApplicationContext(), mCamera,this);
-            FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-            preview.addView(mPreview);
+        mCamera = getCameraInstance();
+        mPreview = new CameraPreview(getApplicationContext(), mCamera,this);
+        FrameLayout preview = (FrameLayout) findViewById(R.id.activity_camera);
+        preview.addView(mPreview);
+        preview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                picBtn.setEnabled(false);
+                mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                    @Override
+                    public void onAutoFocus(boolean success, Camera camera) {
+                        if(success){
+                            picBtn.setEnabled(true);
+                        }
+                    }
+                });
+            }
+        });
     }
 
     private void resetCamera(){
@@ -67,7 +91,7 @@ public class CameraActivity extends AppCompatActivity {
             mCamera.stopPreview();
             mCamera.release();
             mCamera = null;
-            ((FrameLayout) findViewById(R.id.camera_preview)).removeView(mPreview);
+            ((FrameLayout) findViewById(R.id.activity_camera)).removeView(mPreview);
             mPreview = null;
         }
         startCamera();
@@ -80,7 +104,7 @@ public class CameraActivity extends AppCompatActivity {
             mCamera.stopPreview();
             mCamera.release();
             mCamera = null;
-            ((FrameLayout) findViewById(R.id.camera_preview)).removeView(mPreview);
+            ((FrameLayout) findViewById(R.id.activity_camera)).removeView(mPreview);
             mPreview = null;
         }
     }

@@ -21,40 +21,27 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-            if (!hasPermissions()) {
-                // your app doesn't have permissions, ask for them.
-                requestNecessaryPermissions();
-            } else {
-                // your app already have permissions allowed.
-                // do what you want.
-                //startCamera();
-            }
-        } else {
-            Toast.makeText(getApplicationContext(), "Camera not supported", Toast.LENGTH_LONG).show();
-        }
-
-        findViewById(R.id.picBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(checkCameraHardware(getApplicationContext())) {
-                    // 카메라 있음
+        if(checkCameraHardware(getApplicationContext())) {
+            // 카메라 있음
+            if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+                if (!hasPermissions()) {
+                    // your app doesn't have permissions, ask for them.
+                    requestNecessaryPermissions();
+                } else {
+                    // your app already have permissions allowed.
+                    // do what you want.
+                    //startCamera();
                     Intent i = new Intent(getApplicationContext(),CameraActivity.class);
                     startActivity(i);
-                }else{
-                    // 카메라 없음
-                    Toast.makeText(getApplicationContext(),"your device has not camera",Toast.LENGTH_SHORT).show();
+                    finish();
                 }
+            } else {
+                Toast.makeText(getApplicationContext(), "Camera not supported", Toast.LENGTH_LONG).show();
             }
-        });
-        findViewById(R.id.albBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(),AlbumActivity.class);
-                startActivity(i);
-            }
-        });
+        }else{
+            // 카메라 없음
+            Toast.makeText(getApplicationContext(),"your device has not camera",Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -107,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 for (int res : grandResults) {
                     // if user granted all required permissions then 'allowed' will return true.
                     allowed = allowed && (res == PackageManager.PERMISSION_GRANTED);
-                    Toast.makeText(this, "Camera permission granted", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(this, "Camera permission granted", Toast.LENGTH_SHORT).show();
                 }
                 break;
             default:
@@ -120,6 +107,9 @@ public class MainActivity extends AppCompatActivity {
             // if user granted permissions then do your work.
             //startCamera();
 //            doRestart(this);
+            Intent i = new Intent(getApplicationContext(),CameraActivity.class);
+            startActivity(i);
+            finish();
         }
         else {
             // else give any custom waring message.

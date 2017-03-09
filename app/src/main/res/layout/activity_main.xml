@@ -11,23 +11,4 @@
     android:orientation="vertical"
     tools:context="com.camera.hslee.mycameraproject.MainActivity">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center">
-
-        <Button
-            android:id="@+id/picBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="사진찍기"/>
-
-        <Button
-            android:layout_marginLeft="20dp"
-            android:id="@+id/albBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="앨범"/>
-    </LinearLayout>
-
 </LinearLayout>
