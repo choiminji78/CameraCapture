@@ -20,6 +20,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class AlbumActivity extends AppCompatActivity {
     Activity act = this;
@@ -37,26 +39,33 @@ public class AlbumActivity extends AppCompatActivity {
     private class GridAdapter extends BaseAdapter {
         LayoutInflater inflater;
         File dir;
-        File[] childFiles;
+        ArrayList<File> pictureList;
 
         public GridAdapter() {
+            pictureList = new ArrayList<>();
+            listUpdate();
 //            dir = new File(getApplicationContext().getFilesDir(), "MyCameraApp");
 //            dir = new File(getApplicationContext().getExternalCacheDir(),"MyCamerApp");
 //            File dir = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),"MyCamerApp");
             dir = new File("sdcard/Android/data/"+getPackageName(),"MyCameraApp");
-            childFiles = dir.listFiles();
+
+            File[] childFiles = dir.listFiles();
+            for(File f:childFiles)
+                pictureList.add(f);
+            Collections.sort(pictureList);
+
             inflater = (LayoutInflater) act.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
         public void listUpdate(){
-            dir = new File("sdcard/Android/data/"+getPackageName(),"MyCameraApp");
-            childFiles = dir.listFiles();
+            Collections.sort(pictureList);
             inflater = (LayoutInflater) act.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            mAdapter.notifyDataSetChanged();
+            if(mAdapter!=null)
+                mAdapter.notifyDataSetChanged();
         }
         @Override
         public int getCount() {
-            if(childFiles!=null) {
-                return childFiles.length;
+            if(pictureList!=null) {
+                return pictureList.size();
             }else{
                 return 0;
             }
@@ -64,8 +73,8 @@ public class AlbumActivity extends AppCompatActivity {
 
         @Override
         public Object getItem(int position) {
-            if(childFiles!=null) {
-                return childFiles[position];
+            if(pictureList!=null) {
+                return pictureList.get(position);
             }else{
                 return null;
             }
@@ -77,7 +86,7 @@ public class AlbumActivity extends AppCompatActivity {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.item, parent, false);
             }
@@ -94,7 +103,9 @@ public class AlbumActivity extends AppCompatActivity {
                                 .setPositiveButton("네", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        file.delete();
+                                        if(file.delete()){
+                                            pictureList.remove(position);
+                                        }
                                         listUpdate();
                                         Toast.makeText(act, "삭제되었습니다.", Toast.LENGTH_SHORT).show();
                                     }

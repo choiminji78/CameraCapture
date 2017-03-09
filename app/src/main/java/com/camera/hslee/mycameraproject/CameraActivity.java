@@ -26,6 +26,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class CameraActivity extends AppCompatActivity {
     private Camera mCamera;
@@ -129,7 +131,9 @@ public class CameraActivity extends AppCompatActivity {
 //                File dir = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),"MyCamerApp");
                 File dir = new File("sdcard/Android/data/"+getPackageName(),"MyCameraApp");
                 dir.mkdirs();
-                String fileName = String.format("%d.jpg", System.currentTimeMillis());
+//                String fileName = String.format("%d.jpg", System.currentTimeMillis());
+                String fileName = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                fileName= fileName+".jpg";
                 File outFile = new File(dir, fileName);
                 outStream = new FileOutputStream(outFile);
                 outStream.write(data[0]);
