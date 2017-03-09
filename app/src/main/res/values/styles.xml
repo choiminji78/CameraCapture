@@ -11,5 +11,11 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>-->
     </style>
-
+    <style name="Dialog" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowBackground">@color/colorPrimary</item>     <!--Dialog background-->
+        <item name="android:textColorPrimary">#FFFFFF</item>    <!--content text color-->
+        <item name="colorAccent">@color/colorAccent</item>     <!--Button text color-->
+        <item name="android:windowNoTitle">false</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>]
 </resources>
