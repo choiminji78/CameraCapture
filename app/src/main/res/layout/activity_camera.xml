@@ -1,25 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_camera"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.camera.hslee.mycameraproject.CameraActivity">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/cameraFrame"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
+        </FrameLayout>
+        <Button
+            android:id="@+id/albBtn"
+            android:layout_gravity="bottom|left"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="18dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="앨범"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="18dp" />
 
-    <Button
-        android:id="@+id/captureBtn"
-        android:layout_gravity="bottom|center"
-        android:layout_marginBottom="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="찰칵"/>
-    <Button
-        android:id="@+id/albBtn"
-        android:layout_gravity="bottom|left"
-        android:layout_marginBottom="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="앨범"/>
-</FrameLayout>
+        <Button
+            android:id="@+id/captureBtn"
+            android:layout_gravity="bottom|center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="찰칵"
+            android:layout_alignBaseline="@+id/albBtn"
+            android:layout_alignBottom="@+id/albBtn"
+            android:layout_centerHorizontal="true" />
+
+</RelativeLayout>
+

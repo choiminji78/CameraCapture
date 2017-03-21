@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.hardware.Camera;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -14,6 +16,7 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -27,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class CameraActivity extends AppCompatActivity {
@@ -40,8 +44,6 @@ public class CameraActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_camera);
-
-
 
         picBtn = (Button)findViewById(R.id.captureBtn);
         picBtn.setOnClickListener(new View.OnClickListener() {
@@ -70,22 +72,81 @@ public class CameraActivity extends AppCompatActivity {
     private void startCamera(){
         mCamera = getCameraInstance();
         mPreview = new CameraPreview(getApplicationContext(), mCamera,this);
-        FrameLayout preview = (FrameLayout) findViewById(R.id.activity_camera);
+        FrameLayout preview = (FrameLayout) findViewById(R.id.cameraFrame);
         preview.addView(mPreview);
-        preview.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.albBtn).setVisibility(View.VISIBLE);
+        findViewById(R.id.captureBtn).setVisibility(View.VISIBLE);
+        preview.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                picBtn.setEnabled(false);
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    picBtn.setEnabled(false);
+                    float x = event.getX();
+                    float y = event.getY();
+                    float touchMajor = event.getTouchMajor();
+                    float touchMinor = event.getTouchMinor();
+                    Rect touchRect = new Rect((int)(x - touchMajor / 2), (int)(y - touchMinor / 2), (int)(x + touchMajor / 2), (int)(y + touchMinor / 2));
+                    this.submitFocusAreaRect(touchRect);
+                }else{
+
+                }
+                    return true;
+            }
+
+            private void submitFocusAreaRect(Rect touchRect) {
+                Camera.Parameters cameraParameters = mCamera.getParameters();
+                if (cameraParameters.getMaxNumFocusAreas() == 0) {
+                    return;
+                }
+
+                // Convert from View's width and height to +/- 1000
+
+                Rect focusArea = new Rect();
+
+                focusArea.set(touchRect.left * 2000 / mPreview.getWidth() - 1000,
+                        touchRect.top * 2000 / mPreview.getHeight() - 1000,
+                        touchRect.right * 2000 / mPreview.getWidth() - 1000,
+                        touchRect.bottom * 2000 / mPreview.getHeight() - 1000);
+
+                // Submit focus area to camera
+
+                ArrayList<Camera.Area> focusAreas = new ArrayList<Camera.Area>();
+                focusAreas.add(new Camera.Area(focusArea, 1000));
+
+                cameraParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                cameraParameters.setFocusAreas(focusAreas);
+                mCamera.setParameters(cameraParameters);
+
+                // Start the autofocus operation
+
                 mCamera.autoFocus(new Camera.AutoFocusCallback() {
                     @Override
                     public void onAutoFocus(boolean success, Camera camera) {
-                        if(success){
+                        if (success) {
                             picBtn.setEnabled(true);
+                        } else {
+                            // 포커스 실패
                         }
                     }
                 });
             }
         });
+//        preview.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                picBtn.setEnabled(false);
+//                mCamera.autoFocus(new Camera.AutoFocusCallback() {
+//                    @Override
+//                    public void onAutoFocus(boolean success, Camera camera) {
+//                        if(success){
+//                            picBtn.setEnabled(true);
+//                        }else{
+//                            // 포커스 실패
+//                        }
+//                    }
+//                });
+//            }
+//        });
     }
 
     private void resetCamera(){
@@ -93,7 +154,7 @@ public class CameraActivity extends AppCompatActivity {
             mCamera.stopPreview();
             mCamera.release();
             mCamera = null;
-            ((FrameLayout) findViewById(R.id.activity_camera)).removeView(mPreview);
+            ((FrameLayout) findViewById(R.id.cameraFrame)).removeView(mPreview);
             mPreview = null;
         }
         startCamera();
@@ -106,11 +167,10 @@ public class CameraActivity extends AppCompatActivity {
             mCamera.stopPreview();
             mCamera.release();
             mCamera = null;
-            ((FrameLayout) findViewById(R.id.activity_camera)).removeView(mPreview);
+            ((FrameLayout) findViewById(R.id.cameraFrame)).removeView(mPreview);
             mPreview = null;
         }
     }
-
 
     private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
         @Override
@@ -131,7 +191,7 @@ public class CameraActivity extends AppCompatActivity {
 //                File dir = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),"MyCamerApp");
                 File dir = new File("sdcard/Android/data/"+getPackageName(),"MyCameraApp");
                 dir.mkdirs();
-//                String fileName = String.format("%d.jpg", System.currentTimeMillis());
+
                 String fileName = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
                 fileName= fileName+".jpg";
                 File outFile = new File(dir, fileName);
@@ -152,12 +212,7 @@ public class CameraActivity extends AppCompatActivity {
                 File newImg = new File(dir,fileName);
                 OutputStream ops = new FileOutputStream(newImg);
                 img.compress(Bitmap.CompressFormat.JPEG,100,ops);
-
                 ops.close();
-
-
-//                refreshGallery(outFile);
-                Log.d("MyCameraApp", "onPictureTaken - wrote bytes: " + data.length + " to " + outFile.getAbsolutePath());
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -167,51 +222,34 @@ public class CameraActivity extends AppCompatActivity {
             return null;
         }
     }
-    public Bitmap rotate(Bitmap bitmap, int degrees)
-    {
-        if(degrees != 0 && bitmap != null)
-        {
+    public Bitmap rotate(Bitmap bitmap, int degrees) {
+        if(degrees != 0 && bitmap != null) {
             Matrix m = new Matrix();
             m.setRotate(degrees, (float) bitmap.getWidth() / 2,
                     (float) bitmap.getHeight() / 2);
-
-            try
-            {
+            try {
                 Bitmap converted = Bitmap.createBitmap(bitmap, 0, 0,
                         bitmap.getWidth(), bitmap.getHeight(), m, true);
-                if(bitmap != converted)
-                {
+                if(bitmap != converted) {
                     bitmap.recycle();
                     bitmap = converted;
                 }
             }
-            catch(OutOfMemoryError ex)
-            {
+            catch(OutOfMemoryError ex) {
                 // 메모리가 부족하여 회전을 시키지 못할 경우 그냥 원본을 반환합니다.
             }
         }
         return bitmap;
     }
-    public int exifOrientationToDegrees(int exifOrientation)
-    {
-        if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_90)
-        {
+    public int exifOrientationToDegrees(int exifOrientation) {
+        if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
             return 90;
-        }
-        else if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_180)
-        {
+        } else if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
             return 180;
-        }
-        else if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_270)
-        {
+        } else if(exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
             return 270;
         }
         return 0;
-    }
-    public void refreshGallery(File file){
-        Intent mediaScanIntent = new Intent( Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        mediaScanIntent.setData(Uri.fromFile(file));
-        sendBroadcast(mediaScanIntent);
     }
     /**
      * A safe way to get an instance of the Camera object.

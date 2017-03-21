@@ -31,28 +31,19 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     public void surfaceCreated(SurfaceHolder holder) {
         try {
             Camera.Parameters parameters = mCamera.getParameters();
-            if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
-                parameters.set("orientation", "portrait");
-                mCamera.setDisplayOrientation(90);
-                parameters.setRotation(90);
-            } else {
-                parameters.set("orientation", "landscape");
-                mCamera.setDisplayOrientation(0);
-                parameters.setRotation(0);
-            }
-            mCamera.setParameters(parameters);
-
             int rotation = mActivity.getWindowManager().getDefaultDisplay().getRotation();
             int degress = 0;
             switch (rotation){
                 case Surface.ROTATION_0 : degress = 0; break;
                 case Surface.ROTATION_90: degress = 90; break;
-                case Surface.ROTATION_180: degress = 190; break;
+                case Surface.ROTATION_180: degress = 180; break;
                 case Surface.ROTATION_270: degress = 270; break;
             }
             int result = (90-degress + 360) % 360;
-            mCamera.setDisplayOrientation(result);
+            parameters.setRotation(result);
 
+            mCamera.setDisplayOrientation(result);
+            mCamera.setParameters(parameters);
             mCamera.setPreviewDisplay(holder);
             mCamera.startPreview();
         } catch (IOException e) {

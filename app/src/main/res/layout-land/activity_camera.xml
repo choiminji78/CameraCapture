@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_camera"
     android:layout_width="match_parent"
@@ -7,19 +7,32 @@
     android:orientation="vertical"
     tools:context="com.camera.hslee.mycameraproject.CameraActivity">
 
-    <Button
-        android:id="@+id/captureBtn"
-        android:layout_gravity="right|center"
-        android:layout_marginRight="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="찰칵"/>
-    <Button
-        android:id="@+id/albBtn"
-        android:layout_gravity="bottom|right"
-        android:layout_marginBottom="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="앨범"/>
-</FrameLayout>
+    <FrameLayout
+        android:id="@+id/cameraFrame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+        <Button
+            android:id="@+id/albBtn"
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="24dp"
+            android:layout_marginRight="34dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="앨범"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="34dp" />
+
+        <Button
+            android:id="@+id/captureBtn"
+            android:layout_gravity="right|center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="찰칵"
+            android:layout_centerVertical="true"
+            android:layout_alignLeft="@+id/albBtn"
+            android:layout_alignStart="@+id/albBtn" />
+
+</RelativeLayout>
